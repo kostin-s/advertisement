@@ -1,0 +1,10 @@
+node_modules
+
+backend/dist
+backend/uploads
+backend/node_modules
+backend/.env
+
+frontend/node_modules
+frontend/.next
+frontend/.env
