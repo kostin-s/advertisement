@@ -1,6 +1,8 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 
 import { Base } from 'src/utils/base';
+import { AdvertisementEntity } from 'src/advertisement/advertisement.entity';
+import { TypeRole } from 'src/auth/auth.interface';
 
 @Entity('User')
 export class UserEntity extends Base {
@@ -11,7 +13,7 @@ export class UserEntity extends Base {
   password: string;
 
   @Column({ default: 'user' })
-  role: string;
+  role: TypeRole;
 
   @Column({ default: '' })
   name: string;
@@ -22,6 +24,12 @@ export class UserEntity extends Base {
   @Column({ default: '', type: 'text' })
   description: string;
 
+  @Column({ default: '' })
+  phone: string;
+
   @Column({ default: '', name: 'avatar_path' })
   avatarPath: string;
+
+  @OneToMany(() => AdvertisementEntity, ads => ads.userId)
+  advertisements: AdvertisementEntity[];
 }

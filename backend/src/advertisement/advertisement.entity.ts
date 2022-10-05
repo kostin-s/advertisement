@@ -1,6 +1,7 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, ManyToOne, JoinColumn } from 'typeorm';
 
 import { Base } from 'src/utils/base';
+import { UserEntity } from 'src/user/user.entity';
 
 @Entity('Advertisement')
 export class AdvertisementEntity extends Base {
@@ -14,8 +15,11 @@ export class AdvertisementEntity extends Base {
   price: number;
 
   @Column()
-  images: string[];
+  videoPath: string;
 
-  @Column()
-  categoties: string[];
+  @ManyToOne(() => UserEntity, user => user.advertisements, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'user_id' })
+  userId: UserEntity;
 }
