@@ -15,7 +15,7 @@ import { UserEntity } from './user.entity';
 export class UserService {
   constructor(
     @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>, // @InjectRepository(AdvertisementEntity)/ // private readonly advertisementRepository: /Repository<AdvertisementEntity>,
+    private readonly userRepository: Repository<UserEntity>,
   ) {}
 
   async getUserById(id: number) {

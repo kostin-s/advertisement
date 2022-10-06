@@ -30,6 +30,6 @@ export class UserEntity extends Base {
   @Column({ default: '', name: 'avatar_path' })
   avatarPath: string;
 
-  @OneToMany(() => AdvertisementEntity, ads => ads.userId)
+  @OneToMany(() => AdvertisementEntity, ads => ads.user)
   advertisements: AdvertisementEntity[];
 }

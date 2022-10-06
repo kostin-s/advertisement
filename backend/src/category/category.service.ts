@@ -57,10 +57,9 @@ export class CategoryService {
   async delete(id: number) {
     await this.checkCategoryExist('id', id);
 
-    const allCategories = await this.categoryRepository.find();
-    const deleteIds = [id, ...idSubcategories(allCategories, id)];
+    const deleteIds = await this.getSubcategories(id);
 
-    return this.categoryRepository.delete(deleteIds);
+    return this.categoryRepository.delete(deleteIds.unshift(id));
   }
 
   async checkCategoryExist(check: string, trigger: string | number) {
@@ -81,5 +80,11 @@ export class CategoryService {
     const categories = await this.categoryRepository.find();
 
     return transformCategories(categories);
+  }
+
+  async getSubcategories(id: number) {
+    const allCategories = await this.categoryRepository.find();
+
+    return [...idSubcategories(allCategories, id)];
   }
 }
