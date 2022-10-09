@@ -40,22 +40,19 @@ export class UserService {
     return await this.userRepository.find();
   }
 
-  async updateProfile(id: number, dto: UserDto, updateId: string | number) {
-    const availableRoles: TypeRole[] = ['admin', 'moderator', 'user'];
+  async updateProfile(id: number, dto: UserDto, updateId: number) {
     const roles: TypeRole[] = ['admin', 'moderator'];
-    const updateIdNumber = Number(updateId) || null;
     const user = await this.getUserById(id);
-    const userUpdate = await this.getUserById(updateIdNumber);
+    const userUpdate = await this.getUserById(updateId);
 
-    await this.checkUserExist(dto.email, updateIdNumber);
+    await this.checkUserExist(dto.email, updateId);
 
-    if (!roles.includes(user.role) && id !== updateIdNumber) {
+    if (!roles.includes(user.role) && id !== updateId) {
       throw new BadRequestException("You can't edit someone else's profile!");
     }
 
     if (dto.role) {
-      if (user.role === 'admin' && availableRoles.includes(dto.role))
-        userUpdate.role = dto.role;
+      if (user.role === 'admin') userUpdate.role = dto.role;
       else throw new BadRequestException("You can't edit role");
     }
 
@@ -83,12 +80,11 @@ export class UserService {
     return newUser;
   }
 
-  async delete(currentUserId: number, id: string) {
-    const deleteId = Number(id) || null;
+  async delete(currentUserId: number, deleteId: number) {
     const user = await this.getUserById(currentUserId);
     const userDelete = await this.getUserById(deleteId);
 
-    if (!userDelete) {
+    if (!userDelete || !user) {
       throw new BadRequestException('User not found!');
     }
 

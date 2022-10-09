@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { path } from 'app-root-path';
 import { ensureDir, remove, writeFile } from 'fs-extra';
+import { v4 as uuidv4 } from 'uuid';
 
 import { IFileResponse } from './file.interface';
 
@@ -10,10 +11,9 @@ export class FileService {
     uploadFile: Express.Multer.File,
     userId: number,
     folder: string,
-    fileName: string,
   ): Promise<IFileResponse> {
     const uploadFolder = `${path}/uploads/${userId}/${folder}`;
-    const newFileName = `${fileName}.${
+    const newFileName = `${uuidv4()}.${
       (/[^./\\]*$/.exec(uploadFile.originalname) || [''])[0]
     }`;
 

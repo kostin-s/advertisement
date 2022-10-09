@@ -5,6 +5,7 @@ import {
   Get,
   HttpCode,
   Param,
+  ParseIntPipe,
   Put,
   UsePipes,
   ValidationPipe,
@@ -13,7 +14,6 @@ import {
 import { Auth } from 'src/auth/decoratos/auth.decorator';
 import { CurrentUser } from './decorators/user.decorator';
 import { UserDto } from './dto/user.dto';
-
 import { UserService } from './user.service';
 
 @Controller('user')
@@ -27,8 +27,8 @@ export class UserController {
   }
 
   @Get('by-id/:id')
-  async getuser(@Param('id') id: string) {
-    return await this.userService.getUserById(+id);
+  async getUser(@Param('id', ParseIntPipe) id: number) {
+    return await this.userService.getUserById(id);
   }
 
   @UsePipes(new ValidationPipe())
@@ -37,18 +37,19 @@ export class UserController {
   @Auth()
   async updateUser(
     @CurrentUser('id') currentUserId: number,
+    @Param('id', ParseIntPipe) updateId: number,
     @Body() dto: UserDto,
-    @Param('id') updateId: string,
   ) {
     return this.userService.updateProfile(currentUserId, dto, updateId);
   }
 
+  @UsePipes(new ValidationPipe())
   @Delete('delete/:id')
   @HttpCode(200)
   @Auth()
   async deleteUser(
     @CurrentUser('id') currentUserId: number,
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
   ) {
     return this.userService.delete(currentUserId, id);
   }

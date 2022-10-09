@@ -6,18 +6,21 @@ import {
   Post,
   UploadedFile,
   UseInterceptors,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 import { FileService } from './file.service';
 import { Auth } from 'src/auth/decoratos/auth.decorator';
 import { CurrentUser } from 'src/user/decorators/user.decorator';
-import { FileDto } from './dto/file.dto';
+import { FileDeleteDto, FileDto } from './dto/file.dto';
 
 @Controller('file')
 export class FileController {
   constructor(private readonly fileService: FileService) {}
 
+  @UsePipes(new ValidationPipe())
   @Post()
   @HttpCode(200)
   @Auth()
@@ -27,20 +30,16 @@ export class FileController {
     @CurrentUser('id') currentUserId: number,
     @Body() dto: FileDto,
   ) {
-    return this.fileService.uploadFile(
-      mediaFile,
-      currentUserId,
-      dto.folder,
-      dto.fileName,
-    );
+    return this.fileService.uploadFile(mediaFile, currentUserId, dto.folder);
   }
 
+  @UsePipes(new ValidationPipe())
   @Delete('delete')
   @HttpCode(200)
   @Auth()
   async deleteFile(
     @CurrentUser('id') currentUserId: number,
-    @Body() dto: FileDto,
+    @Body() dto: FileDeleteDto,
   ) {
     return this.fileService.deleteFile(dto.fileName, currentUserId, dto.folder);
   }

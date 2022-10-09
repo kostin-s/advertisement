@@ -7,7 +7,6 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { AdvertisementModule } from './advertisement/advertisement.module';
 import { CategoryModule } from './category/category.module';
-import { FileModule } from './file/file.module';
 
 @Module({
   imports: [
@@ -21,7 +20,6 @@ import { FileModule } from './file/file.module';
     UserModule,
     AdvertisementModule,
     CategoryModule,
-    FileModule,
   ],
   controllers: [],
   providers: [],
