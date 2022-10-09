@@ -13,11 +13,13 @@ import {
   Any,
 } from 'typeorm';
 
-import { CategoryService } from 'src/category/category.service';
 import { AdvertisementEntity } from './advertisement.entity';
-import { UserService } from 'src/user/user.service';
 import { TypeRole } from 'src/auth/auth.interface';
-import { advertisementSearchDto } from './dto/advertisement.dto';
+import { CategoryService } from 'src/category/category.service';
+import {
+  advertisementSearchDto,
+  advertisementUpdateDto,
+} from './dto/advertisement.dto';
 
 @Injectable()
 export class AdvertisementService {
@@ -25,7 +27,6 @@ export class AdvertisementService {
     @InjectRepository(AdvertisementEntity)
     private readonly advertisementRepository: Repository<AdvertisementEntity>,
     private readonly categoryService: CategoryService,
-    private readonly userService: UserService,
   ) {}
   private readonly availableRoles: TypeRole[] = ['admin', 'moderator'];
 
@@ -46,7 +47,11 @@ export class AdvertisementService {
           }
         : {
             id: adId,
-            user: true,
+            user: {
+              advertisements: {
+                id: Not(adId),
+              },
+            },
           },
       relations: {
         user: {
@@ -140,16 +145,13 @@ export class AdvertisementService {
     return ads;
   }
 
-  async create(userId: number, categoryId: number) {
-    await this.categoryService.checkCategoryExist('id', categoryId);
-
+  async create(userId: number) {
     const defaultValues = {
       title: '',
       description: '',
       price: 0,
       videoPath: '',
-      userId: { id: userId },
-      categoryId: { id: categoryId },
+      user: { id: userId },
     };
 
     const newAdvertisement = this.advertisementRepository.create(defaultValues);
@@ -158,5 +160,50 @@ export class AdvertisementService {
     );
 
     return advertisement;
+  }
+
+  async update(adsId: number, dto: advertisementUpdateDto, userId: number) {
+    const advertisement = await this.byId(adsId, false, userId);
+
+    if (dto.category) {
+      await this.categoryService.checkCategoryExist('id', dto.category);
+    }
+
+    if (
+      typeof dto.isApprove === 'boolean' &&
+      !this.availableRoles.includes(advertisement.user?.role)
+    ) {
+      throw new BadRequestException("You don't have enough rights");
+    }
+
+    const data = { ...dto, category: { id: dto.category } };
+
+    return this.advertisementRepository.save({
+      ...advertisement,
+      ...data,
+    });
+  }
+
+  async delete(id: number, userId: number) {
+    const advertisement = await this.advertisementRepository.findOne({
+      where: {
+        id,
+      },
+      relations: {
+        user: true,
+      },
+    });
+
+    if (!advertisement) {
+      throw new NotFoundException('Advertisement not found!');
+    }
+
+    if (advertisement.user?.id !== userId) {
+      throw new BadRequestException(
+        "You can't delete another user's advertisement!",
+      );
+    }
+
+    return this.advertisementRepository.delete({ id });
   }
 }

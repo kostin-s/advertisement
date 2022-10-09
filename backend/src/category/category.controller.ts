@@ -12,7 +12,7 @@ import {
 
 import { Auth } from 'src/auth/decoratos/auth.decorator';
 import { CategoryService } from './category.service';
-import { CategoryDto } from './dto/category.dto';
+import { CategoryDto, CategoryUpdateDto } from './dto/category.dto';
 import { CategoryDeleteDto } from './dto/categoryDelete.dto';
 
 @Controller('category')
@@ -36,7 +36,7 @@ export class CategoryController {
   @HttpCode(200)
   @Put('update')
   @Auth('admin')
-  async updateCategory(@Body() dto: CategoryDto) {
+  async updateCategory(@Body() dto: CategoryUpdateDto) {
     return this.categoryService.update(dto);
   }
 

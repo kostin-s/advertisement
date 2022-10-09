@@ -10,7 +10,7 @@ import { compare, genSalt, hash } from 'bcryptjs';
 
 import { UserEntity } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
-import { AuthDto } from './dto/auth.dto';
+import { AuthDto, AuthRegisterDto } from './dto/auth.dto';
 import { refreshTokenDto } from './dto/refreshToken.dto';
 
 @Injectable()
@@ -22,7 +22,7 @@ export class AuthService {
     private readonly userService: UserService,
   ) {}
 
-  async register(dto: AuthDto) {
+  async register(dto: AuthRegisterDto) {
     await this.userService.checkUserExist(dto.email);
 
     const salt = await genSalt(10);
@@ -30,16 +30,15 @@ export class AuthService {
 
     const newUser = await this.userRepository.create({
       email: dto.email,
+      name: dto.name,
       password,
+      isVerified: false,
+      role: 'user',
     });
 
     const user = await this.userRepository.save(newUser);
-    const tokens = await this.issueTokenPair(user.id);
 
-    return {
-      user: this.returnUserFields(user),
-      ...tokens,
-    };
+    return user.id;
   }
 
   async login(dto: AuthDto) {
@@ -108,7 +107,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid token or expired');
     }
 
-    const user = await this.userRepository.findOneBy({ id: result.id });
+    const user = await this.userService.getUserById(result.id);
 
     const tokens = await this.issueTokenPair(user.id);
 

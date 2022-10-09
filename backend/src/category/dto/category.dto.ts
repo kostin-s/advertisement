@@ -1,11 +1,14 @@
 import { IsNumber, IsString } from 'class-validator';
 
-import { Base } from 'src/utils/base';
-
-export class CategoryDto extends Base {
+export class CategoryDto {
   @IsString()
   title: string;
 
   @IsNumber()
   parent: number;
+}
+
+export class CategoryUpdateDto extends CategoryDto {
+  @IsNumber()
+  id: number;
 }

@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { CategoryEntity } from './category.entity';
-import { CategoryDto } from './dto/category.dto';
+import { CategoryDto, CategoryUpdateDto } from './dto/category.dto';
 import { idSubcategories, transformCategories } from 'src/utils/fn/categories';
 
 @Injectable()
@@ -24,14 +24,8 @@ export class CategoryService {
       throw new BadRequestException('This category already exists.');
     }
 
-    const parentCategory = await this.categoryRepository.findOne({
-      where: {
-        id: dto.parent,
-      },
-    });
-
-    if (!parentCategory && dto.parent !== 0) {
-      throw new BadRequestException('This parent category not found.');
+    if (dto.parent !== 0) {
+      await this.checkCategoryExist('id', dto.parent);
     }
 
     const categoryValues = {
@@ -45,8 +39,22 @@ export class CategoryService {
     return category;
   }
 
-  async update(dto: CategoryDto) {
+  async update(dto: CategoryUpdateDto) {
     const category = await this.checkCategoryExist('id', dto.id);
+
+    if (dto.parent !== 0) {
+      await this.checkCategoryExist('id', dto.parent);
+    }
+
+    const oldCategory = await this.categoryRepository.findOne({
+      where: {
+        title: dto.title,
+      },
+    });
+
+    if (oldCategory && oldCategory.id !== dto.id) {
+      throw new BadRequestException('This category already exists.');
+    }
 
     return this.categoryRepository.save({
       ...category,
@@ -58,8 +66,9 @@ export class CategoryService {
     await this.checkCategoryExist('id', id);
 
     const deleteIds = await this.getSubcategories(id);
+    deleteIds.unshift(id);
 
-    return this.categoryRepository.delete(deleteIds.unshift(id));
+    return this.categoryRepository.delete(deleteIds);
   }
 
   async checkCategoryExist(check: string, trigger: string | number) {

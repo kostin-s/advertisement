@@ -24,15 +24,16 @@ export class AdvertisementEntity extends Base {
   @Column({ default: false, name: 'is_approve' })
   isApprove: boolean;
 
+  @Column('text', { array: true, nullable: true, default: [] })
+  images: string[];
+
   @ManyToOne(() => UserEntity, user => user.advertisements, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'user_id' })
   user: UserEntity;
 
-  @ManyToOne(() => CategoryEntity, category => category.advertisements, {
-    onDelete: 'CASCADE',
-  })
+  @ManyToOne(() => CategoryEntity, category => category.advertisements)
   @JoinColumn({ name: 'category_id' })
   category: CategoryEntity;
 }

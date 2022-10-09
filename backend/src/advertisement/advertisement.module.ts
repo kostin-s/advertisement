@@ -5,15 +5,10 @@ import { AdvertisementService } from './advertisement.service';
 import { AdvertisementController } from './advertisement.controller';
 import { AdvertisementEntity } from './advertisement.entity';
 import { CategoryModule } from 'src/category/category.module';
-import { UserModule } from 'src/user/user.module';
 
 @Module({
   controllers: [AdvertisementController],
   providers: [AdvertisementService],
-  imports: [
-    TypeOrmModule.forFeature([AdvertisementEntity]),
-    CategoryModule,
-    UserModule,
-  ],
+  imports: [TypeOrmModule.forFeature([AdvertisementEntity]), CategoryModule],
 })
 export class AdvertisementModule {}
